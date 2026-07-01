@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IFC Campeonatos</title>
+<meta name="description" content="O app oficial de campeonatos do Independente Futebol Clube. Súmulas, tabelas, artilharia e placar ao vivo, tudo em um só lugar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --preto: #0A0505;
+    --bordo: #3D0008;
+    --bordo-claro: #6B0011;
+    --dourado: #C9A227;
+    --dourado-claro: #E4C34E;
+    --off-white: #F2EDE4;
+    --cinza-bordo: #1B0A0D;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    background:var(--preto);
+    color:var(--off-white);
+    font-family:'Barlow Condensed', sans-serif;
+    font-weight:400;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3,.display{
+    font-family:'Bebas Neue', sans-serif;
+    font-weight:400;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+  }
+
+  a{color:inherit;text-decoration:none;}
+
+  .container{
+    max-width:1100px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:50;
+    background:linear-gradient(180deg, rgba(10,5,5,0.95), rgba(10,5,5,0.75));
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid rgba(201,162,39,0.15);
+  }
+  nav .container{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:64px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:22px;
+    letter-spacing:0.06em;
+  }
+  .brand .dot{width:8px;height:8px;background:var(--dourado);border-radius:50%;box-shadow:0 0 8px var(--dourado);}
+  nav ul{display:flex;gap:32px;list-style:none;}
+  nav ul a{
+    font-size:15px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--off-white);
+    opacity:0.75;
+    transition:opacity .2s, color .2s;
+  }
+  nav ul a:hover{opacity:1;color:var(--dourado-claro);}
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    position:relative;
+    padding:150px 0 90px;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(61,0,8,0.55), transparent 55%),
+      radial-gradient(circle at 85% 30%, rgba(201,162,39,0.08), transparent 45%),
+      var(--preto);
+    border-bottom:1px solid rgba(201,162,39,0.15);
+    overflow:hidden;
+  }
+  header.hero::before{
+    /* linhas de campo sutis */
+    content:'';
+    position:absolute;
+    inset:0;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(201,162,39,0.05) 0 1px, transparent 1px 120px);
+    pointer-events:none;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1.1fr 0.9fr;
+    gap:48px;
+    align-items:center;
+    position:relative;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--dourado-claro);
+    border:1px solid rgba(201,162,39,0.35);
+    padding:6px 14px;
+    border-radius:999px;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{content:'●';font-size:8px;color:#4CAF50;}
+  .hero h1{
+    font-size:clamp(48px, 7vw, 82px);
+    line-height:0.95;
+    margin-bottom:20px;
+  }
+  .hero h1 span{color:var(--dourado);}
+  .hero p.lead{
+    font-size:20px;
+    color:rgba(242,237,228,0.75);
+    max-width:480px;
+    margin-bottom:34px;
+  }
+  .cta-row{display:flex;gap:16px;flex-wrap:wrap;}
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:14px 26px;
+    border-radius:8px;
+    font-family:'Barlow Condensed', sans-serif;
+    font-weight:600;
+    font-size:17px;
+    letter-spacing:0.03em;
+    text-transform:uppercase;
+    transition:transform .15s, box-shadow .15s;
+  }
+  .btn-primary{
+    background:var(--dourado);
+    color:var(--preto);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,162,39,0.35);}
+  .btn-ghost{
+    border:1px solid rgba(242,237,228,0.25);
+    color:var(--off-white);
+  }
+  .btn-ghost:hover{border-color:var(--dourado);color:var(--dourado-claro);}
+
+  /* ---------- SCOREBOARD (signature element) ---------- */
+  .scoreboard{
+    background:linear-gradient(160deg, var(--bordo) 0%, #24000a 100%);
+    border:1px solid rgba(201,162,39,0.4);
+    border-radius:14px;
+    padding:26px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+    position:relative;
+  }
+  .scoreboard-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--dourado-claro);
+    opacity:0.8;
+    margin-bottom:18px;
+  }
+  .scoreboard-top .live{
+    display:flex;align-items:center;gap:6px;
+    color:#ff5b5b;
+  }
+  .scoreboard-top .live .pulse{
+    width:7px;height:7px;border-radius:50%;background:#ff5b5b;
+    animation:pulse 1.4s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(255,91,91,0.55);}
+    70%{box-shadow:0 0 0 8px rgba(255,91,91,0);}
+    100%{box-shadow:0 0 0 0 rgba(255,91,91,0);}
+  }
+  .match-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 0;
+  }
+  .team{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-family:'Bebas Neue', sans-serif;
+    font-size:22px;
+    letter-spacing:0.03em;
+  }
+  .team .crest{
+    width:34px;height:34px;
+    border-radius:6px;
+    background:linear-gradient(135deg, var(--dourado), #8a6a12);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--preto);
+    font-weight:700;
+    font-size:14px;
+    font-family:'Barlow Condensed';
+  }
+  .score{
+    font-family:'Bebas Neue', sans-serif;
+    font-size:44px;
+    color:var(--dourado-claro);
+    letter-spacing:0.05em;
+  }
+  .divider-line{
+    height:1px;
+    background:rgba(201,162,39,0.2);
+    margin:6px 0;
+  }
+  .scoreboard-footer{
+    display:flex;
+    justify-content:space-between;
+    margin-top:16px;
+    font-size:14px;
+    color:rgba(242,237,228,0.6);
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:100px 0;}
+  .section-head{max-width:600px;margin-bottom:56px;}
+  .section-head .eyebrow{margin-bottom:16px;}
+  .section-head h2{font-size:clamp(32px,4vw,46px);}
+  .section-head p{font-size:18px;color:rgba(242,237,228,0.65);margin-top:14px;}
+
+  .features{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:24px;
+  }
+  .card{
+    background:var(--cinza-bordo);
+    border:1px solid rgba(201,162,39,0.15);
+    border-radius:12px;
+    padding:30px 26px;
+    transition:border-color .2s, transform .2s;
+  }
+  .card:hover{border-color:rgba(201,162,39,0.5);transform:translateY(-4px);}
+  .card .icon{
+    width:44px;height:44px;
+    border-radius:10px;
+    background:rgba(201,162,39,0.12);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:18px;
+    color:var(--dourado);
+    font-size:20px;
+    font-family:'Bebas Neue';
+  }
+  .card h3{font-size:24px;margin-bottom:10px;color:var(--off-white);}
+  .card p{font-size:16px;color:rgba(242,237,228,0.6);}
+
+  /* ---------- ROLES STRIP ---------- */
+  .roles{
+    background:var(--bordo);
+    border-top:1px solid rgba(201,162,39,0.25);
+    border-bottom:1px solid rgba(201,162,39,0.25);
+  }
+  .roles .container{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:0;
+  }
+  .role{
+    padding:44px 20px;
+    text-align:center;
+    border-right:1px solid rgba(201,162,39,0.15);
+  }
+  .role:last-child{border-right:none;}
+  .role .tag{
+    font-family:'Bebas Neue';
+    font-size:26px;
+    color:var(--dourado-claro);
+    margin-bottom:8px;
+  }
+  .role p{font-size:15px;color:rgba(242,237,228,0.7);}
+
+  /* ---------- CTA FINAL ---------- */
+  .cta-final{
+    text-align:center;
+    padding:110px 0;
+  }
+  .cta-final h2{font-size:clamp(36px,5vw,56px);margin-bottom:18px;}
+  .cta-final p{font-size:19px;color:rgba(242,237,228,0.65);max-width:480px;margin:0 auto 34px;}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid rgba(201,162,39,0.15);
+    padding:40px 0;
+  }
+  footer .container{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+  footer .brand{font-size:18px;}
+  footer .links{display:flex;gap:24px;font-size:15px;color:rgba(242,237,228,0.55);}
+  footer .links a:hover{color:var(--dourado-claro);}
+
+  @media (max-width:860px){
+    .hero-grid{grid-template-columns:1fr;}
+    .features{grid-template-columns:1fr;}
+    .roles .container{grid-template-columns:repeat(2,1fr);}
+    .role{border-right:none;border-bottom:1px solid rgba(201,162,39,0.15);}
+    nav ul{display:none;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="brand"><span class="dot"></span>IFC CAMPEONATOS</div>
+    <ul>
+      <li><a href="#recursos">Recursos</a></li>
+      <li><a href="#perfis">Perfis</a></li>
+      <li><a href="privacidade.html">Privacidade</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <span class="eyebrow">Independente Futebol Clube</span>
+      <h1>Cada jogo,<br>cada gol,<br><span>em tempo real.</span></h1>
+      <p class="lead">O app oficial de gestão de campeonatos do IFC. Súmulas, tabelas, artilharia e placar ao vivo — tudo em um só lugar, para quem organiza e para quem torce.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#recursos">Ver recursos</a>
+        <a class="btn btn-ghost" href="privacidade.html">Política de privacidade</a>
+      </div>
+    </div>
+
+    <div class="scoreboard">
+      <div class="scoreboard-top">
+        <span>Semifinal · Campo 1</span>
+        <span class="live"><span class="pulse"></span>Ao vivo · 68'</span>
+      </div>
+      <div class="match-row">
+        <div class="team"><div class="crest">LC</div>Leões do Campo</div>
+        <div class="score">2</div>
+      </div>
+      <div class="divider-line"></div>
+      <div class="match-row">
+        <div class="team"><div class="crest">FA</div>Furacão A.</div>
+        <div class="score">1</div>
+      </div>
+      <div class="scoreboard-footer">
+        <span>Artilheiro: R. Souza · 2 gols</span>
+        <span>2 amarelos</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="recursos">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Recursos</span>
+      <h2>Tudo o que um campeonato precisa</h2>
+      <p>Da súmula à taça, o IFC Campeonatos acompanha cada etapa da competição.</p>
+    </div>
+    <div class="features">
+      <div class="card">
+        <div class="icon">01</div>
+        <h3>Placar ao vivo</h3>
+        <p>Cronômetro, gols e cartões atualizados em tempo real durante a partida, direto do campo.</p>
+      </div>
+      <div class="card">
+        <div class="icon">02</div>
+        <h3>Tabelas e classificação</h3>
+        <p>Pontuação, saldo de gols e posição atualizados automaticamente a cada rodada.</p>
+      </div>
+      <div class="card">
+        <div class="icon">03</div>
+        <h3>Artilharia</h3>
+        <p>Ranking de goleadores por categoria, atualizado partida a partida.</p>
+      </div>
+      <div class="card">
+        <div class="icon">04</div>
+        <h3>Times e elenco</h3>
+        <p>Cadastro de times, categorias e jogadores, com controle de suspensões por cartão.</p>
+      </div>
+      <div class="card">
+        <div class="icon">05</div>
+        <h3>Painel administrativo</h3>
+        <p>Gestão completa de campeonatos, categorias e partidas para organizadores.</p>
+      </div>
+      <div class="card">
+        <div class="icon">06</div>
+        <h3>Multiplataforma</h3>
+        <p>Disponível para Android, iOS e web, com a mesma experiência em qualquer lugar.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="roles" id="perfis">
+  <div class="container">
+    <div class="role"><div class="tag">Admin</div><p>Gerencia campeonatos, categorias e times.</p></div>
+    <div class="role"><div class="tag">Juiz</div><p>Controla partida, gols e cartões ao vivo.</p></div>
+    <div class="role"><div class="tag">Secretário</div><p>Preenche súmulas e dados oficiais.</p></div>
+    <div class="role"><div class="tag">Torcedor</div><p>Acompanha tabelas, jogos e artilharia.</p></div>
+  </div>
+</div>
+
+<section class="cta-final">
+  <div class="container">
+    <span class="eyebrow">Em breve</span>
+    <h2>O IFC Campeonatos<br>está a caminho da loja.</h2>
+    <p>O app está em fase final de testes. Em breve disponível para Android e iOS.</p>
+    <a class="btn btn-primary" href="privacidade.html">Ler política de privacidade</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="brand">IFC CAMPEONATOS</div>
+    <div class="links">
+      <a href="privacidade.html">Política de privacidade</a>
+      <span>© 2026 Independente Futebol Clube</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
